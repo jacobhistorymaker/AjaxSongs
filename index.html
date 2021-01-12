@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Songs</title>
+  <!-- <link rel="stylesheet" type="text/css" title="Cool stylesheet" href="style.css"> -->
+</head>
+
+<body>
+  <div id="root">
+  </div>
+  <div id="newSong" hidden>
+    <input type="text" id="title" placeholder="title">
+    <input type="text" id="artist" placeholder="artist">
+    <input type="text" id="rating" placeholder="rating">
+    <button type="button" onclick="addSong();">Add song</button>
+  </div>
+  <button type="button" onclick="getXml();">Display Songs</button>
+  <script>
+    var xhttp;
+    var songs;
+
+    function getXml() {
+      xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = callback;
+      xhttp.open("GET", "/ajaxLab2/songs.php", true);
+      xhttp.send();
+    }
+
+    function callback() {
+      if (xhttp.readyState == 4 && xhttp.status == 200) {
+        var xml = this.responseXML;
+        songs = xml.getElementsByTagName("song");
+        displaySongs(songs);
+        document.getElementById("newSong").hidden = false;
+      }
+    }
+
+    function displaySongs(songs) {
+      var output = "<table> <tr> <th> Title </th> <th> Artist </th> <th> Rating </th> </tr>";
+      for (var i = 0; i < songs.length; i++) {
+        output += "<tr>";
+        output += "<td>" + songs[i].firstChild.innerHTML + "</td>";
+        output += "<td>" + songs[i].children[1].innerHTML + "</td>";
+        output += "<td>" + songs[i].children[2].innerHTML + "</td>";
+        output += "</tr>";
+      }
+      output += "</table";
+      document.getElementById("root").innerHTML = output;
+    }
+
+    function addSong() {
+      var titleElem = document.getElementById("title");
+      var artistElem = document.getElementById("artist");
+      var ratingElem = document.getElementById("rating");
+      var newSongElem = document.createElement("song");
+      var newTitleElem = document.createElement("title");
+      newTitleElem.innerHTML = titleElem.value;
+      var newArtistElem = document.createElement("artist");
+      newArtistElem.innerHTML = artistElem.value;
+      var newRatingElem = document.createElement("rating");
+      newRatingElem.innerHTML = ratingElem.value;
+      newSongElem.appendChild(newTitleElem);
+      newSongElem.appendChild(newArtistElem);
+      newSongElem.appendChild(newRatingElem);
+
+      songs[songs.length - 1].appendChild(newSongElem);
+
+      displaySongs(songs);
+      clearInputFields();
+    }
+
+    function clearInputFields() {
+      document.getElementById("title").value = "";
+      document.getElementById("artist").value = "";
+      document.getElementById("rating").value = "";
+    }
+  </script>
+</body>
+
+</html>
